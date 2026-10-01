@@ -26,6 +26,20 @@ export type RepoComboboxProps = {
   emptyText?: string;
 };
 
+function split(fullName: string): { owner: string; name: string } {
+  const i = fullName.lastIndexOf("/");
+  if (i === -1) return { owner: "", name: fullName };
+  return { owner: fullName.slice(0, i), name: fullName.slice(i + 1) };
+}
+
+/** Keep both the start and the end of long names so similar names stay distinguishable. */
+function middleTruncate(s: string, max = 30): string {
+  if (s.length <= max) return s;
+  const head = Math.floor((max - 1) / 2);
+  const tail = max - 1 - head;
+  return `${s.slice(0, head)}…${s.slice(-tail)}`;
+}
+
 export function RepoCombobox({
   id,
   repos,
@@ -39,10 +53,11 @@ export function RepoCombobox({
   emptyText = "لا توجد مستودعات مطابقة.",
 }: RepoComboboxProps) {
   const [open, setOpen] = useState(false);
+  const selected = value ? split(value) : null;
 
   return (
     <div className="min-w-0 flex flex-col gap-2">
-      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-stretch gap-2">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -52,10 +67,23 @@ export function RepoCombobox({
               role="combobox"
               aria-expanded={open}
               disabled={disabled || loading}
-              className="h-11 min-w-0 w-full justify-between rounded-xl px-4 py-3 text-sm font-normal"
+              className="h-auto min-h-14 min-w-0 w-full justify-between gap-3 rounded-xl px-4 py-2.5"
             >
-              <span className={cn("mono min-w-0 truncate", !value && "text-muted-foreground")} dir="ltr">
-                {value ? value.slice(value.lastIndexOf("/") + 1) : placeholder}
+              <span className="grid min-w-0 gap-0.5 text-start">
+                <span
+                  className={cn(
+                    "truncate text-sm font-medium",
+                    !selected && "font-normal text-muted-foreground",
+                  )}
+                  dir="ltr"
+                >
+                  {selected ? middleTruncate(selected.name) : placeholder}
+                </span>
+                {selected && (
+                  <span className="mono truncate text-xs text-muted-foreground" dir="ltr">
+                    {selected.owner}
+                  </span>
+                )}
               </span>
               {loading ? (
                 <Loader2 className="h-4 w-4 shrink-0 animate-spin opacity-60" />
@@ -65,42 +93,64 @@ export function RepoCombobox({
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-[--radix-popover-trigger-width] p-0"
+            className="w-[calc(100vw-2rem)] max-w-[var(--radix-popover-trigger-width)] p-0 sm:w-[var(--radix-popover-trigger-width)]"
             align="start"
+            sideOffset={8}
           >
             <Command
               filter={(itemValue, search) =>
                 itemValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
               }
             >
-              <CommandInput placeholder="ابحث باسم المستودع…" dir="ltr" />
-              <CommandList>
+              <div cmdk-input-wrapper="" className="sticky top-0 z-10 border-b bg-popover">
+                <CommandInput placeholder="ابحث باسم المستودع أو الحساب…" dir="ltr" />
+              </div>
+              <CommandList className="max-h-[min(60vh,420px)] overscroll-contain">
                 <CommandEmpty>{emptyText}</CommandEmpty>
-                <CommandGroup>
-                  {repos.map((repo) => (
-                    <CommandItem
-                      key={repo.fullName}
-                      value={repo.fullName}
-                      onSelect={(selected) => {
-                        onChange(selected === value ? "" : selected);
-                        setOpen(false);
-                      }}
-                      className="gap-2"
-                    >
-                      <Check
+                <CommandGroup className="p-1.5">
+                  {repos.map((repo) => {
+                    const { owner, name } = split(repo.fullName);
+                    const isSelected = value === repo.fullName;
+                    return (
+                      <CommandItem
+                        key={repo.fullName}
+                        value={repo.fullName}
+                        onSelect={(selectedValue) => {
+                          onChange(selectedValue === value ? "" : selectedValue);
+                          setOpen(false);
+                        }}
                         className={cn(
-                          "h-4 w-4 shrink-0",
-                          value === repo.fullName ? "opacity-100" : "opacity-0",
+                          "gap-3 rounded-lg px-3 py-3",
+                          "data-[selected=true]:bg-accent",
+                          isSelected && "bg-primary/10",
                         )}
-                      />
-                      <span className="mono truncate text-xs" dir="ltr">
-                        {repo.name}
-                      </span>
-                      {repo.isPrivate && (
-                        <Lock className="ms-auto h-3 w-3 shrink-0 text-muted-foreground" />
-                      )}
-                    </CommandItem>
-                  ))}
+                      >
+                        <Check
+                          className={cn(
+                            "h-4 w-4 shrink-0",
+                            isSelected ? "opacity-100 text-primary" : "opacity-0",
+                          )}
+                        />
+                        <span className="grid min-w-0 flex-1 gap-0.5">
+                          <span
+                            className="truncate text-sm font-medium leading-tight"
+                            dir="ltr"
+                          >
+                            {middleTruncate(name)}
+                          </span>
+                          <span
+                            className="mono truncate text-xs leading-tight text-muted-foreground"
+                            dir="ltr"
+                          >
+                            {owner}
+                          </span>
+                        </span>
+                        {repo.isPrivate && (
+                          <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        )}
+                      </CommandItem>
+                    );
+                  })}
                 </CommandGroup>
               </CommandList>
             </Command>
@@ -115,7 +165,7 @@ export function RepoCombobox({
             onClick={onRefresh}
             disabled={disabled || loading}
             aria-label="تحديث قائمة المستودعات"
-            className="shrink-0 rounded-xl"
+            className="h-auto min-h-14 shrink-0 rounded-xl"
           >
             <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
           </Button>
