@@ -196,13 +196,14 @@ export function RepoCombobox({
             {trigger}
             <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
               <DialogPrimitive.Portal>
-                <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background" />
+                <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60" />
                 <DialogPrimitive.Content
-                  // Fixed full-screen sheet: nothing repositions when the keyboard opens.
-                  // Don't auto-focus search so the keyboard doesn't pop up on open.
+                  // Bottom sheet: anchored to the screen bottom, never repositions.
+                  // No entry animation and no auto-focus, so nothing jumps or shakes.
                   onOpenAutoFocus={(e) => e.preventDefault()}
-                  className="fixed inset-0 z-50 flex h-[100dvh] flex-col bg-popover text-popover-foreground outline-none"
+                  className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col rounded-t-2xl border-t bg-popover text-popover-foreground outline-none"
                 >
+                  <div className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-muted" />
                   <div className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3">
                     <DialogPrimitive.Title className="text-base font-semibold">
                       اختر المستودع
@@ -225,7 +226,7 @@ export function RepoCombobox({
                       value={value}
                       emptyText={emptyText}
                       onPick={pick}
-                      listClassName="flex-1 pb-[env(safe-area-inset-bottom)]"
+                      listClassName="max-h-[calc(85dvh-7rem)] pb-[env(safe-area-inset-bottom)]"
                     />
                   </div>
                 </DialogPrimitive.Content>
@@ -238,6 +239,7 @@ export function RepoCombobox({
             <PopoverContent
               className="w-[var(--radix-popover-trigger-width)] min-w-80 overflow-hidden p-0"
               align="start"
+              side="bottom"
               sideOffset={8}
               avoidCollisions={false}
             >
