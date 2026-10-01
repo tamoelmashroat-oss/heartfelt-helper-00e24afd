@@ -32,6 +32,14 @@ function split(fullName: string): { owner: string; name: string } {
   return { owner: fullName.slice(0, i), name: fullName.slice(i + 1) };
 }
 
+/** Keep both the start and the end of long names so similar names stay distinguishable. */
+function middleTruncate(s: string, max = 30): string {
+  if (s.length <= max) return s;
+  const head = Math.floor((max - 1) / 2);
+  const tail = max - 1 - head;
+  return `${s.slice(0, head)}…${s.slice(-tail)}`;
+}
+
 export function RepoCombobox({
   id,
   repos,
