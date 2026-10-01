@@ -77,7 +77,7 @@ export function RepoCombobox({
                   )}
                   dir="ltr"
                 >
-                  {selected ? selected.name : placeholder}
+                  {selected ? middleTruncate(selected.name) : placeholder}
                 </span>
                 {selected && (
                   <span className="mono truncate text-xs text-muted-foreground" dir="ltr">
@@ -136,7 +136,7 @@ export function RepoCombobox({
                             className="truncate text-sm font-medium leading-tight"
                             dir="ltr"
                           >
-                            {name}
+                            {middleTruncate(name)}
                           </span>
                           <span
                             className="mono truncate text-xs leading-tight text-muted-foreground"
