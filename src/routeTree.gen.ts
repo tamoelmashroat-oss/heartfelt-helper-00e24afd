@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as DevComboboxRouteImport } from './routes/dev-combobox'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDatabaseRouteImport } from './routes/_authenticated/database'
 import { Route as AuthenticatedTransferRouteImport } from './routes/_authenticated/transfer'
@@ -37,11 +36,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DevComboboxRoute = DevComboboxRouteImport.update({
-  id: '/dev-combobox',
-  path: '/dev-combobox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -75,7 +69,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
-  '/dev-combobox': typeof DevComboboxRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/database': typeof AuthenticatedDatabaseRoute
   '/transfer': typeof AuthenticatedTransferRoute
@@ -86,7 +79,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
-  '/dev-combobox': typeof DevComboboxRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/database': typeof AuthenticatedDatabaseRoute
   '/transfer': typeof AuthenticatedTransferRoute
@@ -99,7 +91,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
-  '/dev-combobox': typeof DevComboboxRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/database': typeof AuthenticatedDatabaseRoute
   '/_authenticated/transfer': typeof AuthenticatedTransferRoute
@@ -112,7 +103,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/auth'
-    | '/dev-combobox'
     | '/admin'
     | '/database'
     | '/transfer'
@@ -123,7 +113,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/auth'
-    | '/dev-combobox'
     | '/admin'
     | '/database'
     | '/transfer'
@@ -135,7 +124,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/$'
     | '/auth'
-    | '/dev-combobox'
     | '/_authenticated/admin'
     | '/_authenticated/database'
     | '/_authenticated/transfer'
@@ -148,7 +136,6 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   SplatRoute: typeof SplatRoute
   AuthRoute: typeof AuthRoute
-  DevComboboxRoute: typeof DevComboboxRoute
   OauthGithubReturnRoute: typeof OauthGithubReturnRoute
 }
 
@@ -180,13 +167,6 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dev-combobox': {
-      id: '/dev-combobox'
-      path: '/dev-combobox'
-      fullPath: '/dev-combobox'
-      preLoaderRoute: typeof DevComboboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -249,7 +229,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   SplatRoute: SplatRoute,
   AuthRoute: AuthRoute,
-  DevComboboxRoute: DevComboboxRoute,
   OauthGithubReturnRoute: OauthGithubReturnRoute,
 }
 export const routeTree = rootRouteImport
